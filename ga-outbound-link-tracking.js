@@ -70,12 +70,23 @@ GaqHelper.prototype._liveEvent = function (tag, evt, ofunc) {
 
 sindexOf = String.prototype.indexOf;
 var gh = GaqHelper.prototype;
+subdomainTracking = true;
 
 gh._liveEvent('a', 'mousedown', function (e) {
 	var l = this;
+	pageHostname = document.location.hostname;
+
+	if(subdomainTracking == true){
+		var t = pageHostname.match(/\./g);
+		if (!(t && t.length < 2)) {
+			var start = pageHostname.indexOf('.') + 1;
+			pageHostname =  pageHostname.substring(start);
+		}
+	}
+	
 	if (
 		(l.protocol === 'http:' || l.protocol === 'https:') &&
-		sindexOf.call(l.hostname, document.location.hostname) === -1)
+		sindexOf.call(l.hostname, pageHostname) === -1)
 	{
 		var path = (l.pathname + l.search + ''),
 			utm = sindexOf.call(path, '__utm');
@@ -83,7 +94,7 @@ gh._liveEvent('a', 'mousedown', function (e) {
 			path = path.substring(0, utm);
 		}
 		_gaq.push(['_trackEvent',
-			'Outbound',
+			'Outbound Links',
 			l.hostname,
 			path
 		]);
